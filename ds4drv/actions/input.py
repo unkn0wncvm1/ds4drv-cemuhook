@@ -2,6 +2,7 @@ from ..action import ReportAction
 from ..config import buttoncombo
 from ..exceptions import DeviceError
 from ..uinput import create_uinput_device
+from ..servers import UDPServer
 
 ReportAction.add_option("--emulate-xboxdrv", action="store_true",
                          help="Emulates the same joystick layout as a "
@@ -39,6 +40,9 @@ class ReportActionInput(ReportAction):
         # use 5 ms between each mouse emit to keep it consistent and to
         # allow for at least one fresh report to be received inbetween
         self.timer = self.create_timer(0.005, self.emit_mouse)
+
+        self.server = UDPServer('127.0.0.1', 26760)
+        self.server.start()
 
     def setup(self, device):
         self.timer.start()
@@ -113,6 +117,8 @@ class ReportActionInput(ReportAction):
         return True
 
     def handle_report(self, report):
+        self.server.report(report)
+
         if self.joystick:
             self.joystick.emit(report)
 

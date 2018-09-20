@@ -1,4 +1,5 @@
 import sys
+from time import time
 
 from .device import DS4Report
 
@@ -49,3 +50,22 @@ def zero_copy_slice(buf, start=None, end=None):
         buf = memoryview(buf)
 
     return buf[start:end]
+
+
+def debounce(s):
+    """Decorator ensures function that can only be called once every `s`
+       seconds.
+       Source: https://gist.github.com/walkermatt/2871026#gistcomment-2280711
+    """
+    def decorate(f):
+        t = None
+
+        def wrapped(*args, **kwargs):
+            nonlocal t
+            t_ = time()
+            if t is None or t_ - t >= s:
+                result = f(*args, **kwargs)
+                t = time()
+                return result
+        return wrapped
+    return decorate
