@@ -4,8 +4,6 @@ import struct
 from binascii import crc32
 from time import time
 
-from ..utils import debounce
-
 
 class Message(list):
     Types = dict(version=bytes([0x00, 0x00, 0x10, 0x00]),
@@ -40,10 +38,6 @@ class UDPServer:
         self.sock.bind((host, port))
         self.counter = 0
         self.client = None
-
-        self.motion_x = 0
-        self.motion_y = 0
-        self.motion_z = 0
 
     def _res_ports(self, index):
         return Message('ports', [
@@ -88,8 +82,7 @@ class UDPServer:
         else:
             print('Unknown message type: ' + str(msg_type))
 
-    @debounce(0.05)
-    def send(self):
+    def report(self, report):
         if not self.client:
             return None
 
@@ -150,31 +143,15 @@ class UDPServer:
 
         sensors = [
             0, 0, 0,
-            self.motion_y / 512,
-            - self.motion_x / 256,
-            - self.motion_z / 256,
+            report.motion_y / 64,
+            - report.motion_x / 64,
+            - report.motion_z / 64,
         ]
-
-        self.motion_x = 0
-        self.motion_y = 0
-        self.motion_z = 0
 
         for sensor in sensors:
             data.extend(struct.pack('<f', float(sensor)))
 
         self.sock.sendto(bytes(Message('data', data)), self.client)
-
-    def report(self, report):
-        if abs(report.motion_x) > 50:
-            self.motion_x += report.motion_x
-
-        if abs(report.motion_y) > 50:
-            self.motion_y += report.motion_y
-
-        if abs(report.motion_z) > 50:
-            self.motion_z += report.motion_z
-
-        self.send()
 
     def _worker(self):
         while True:
