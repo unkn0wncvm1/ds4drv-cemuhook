@@ -142,7 +142,9 @@ class UDPServer:
         data.extend(struct.pack('<d', time() * 10**6))
 
         sensors = [
-            0, 0, 0,
+            report.orientation_roll / 8000,
+            - report.orientation_yaw / 8000,
+            - report.orientation_pitch / 8000,
             report.motion_y / 64,
             - report.motion_x / 64,
             - report.motion_z / 64,
