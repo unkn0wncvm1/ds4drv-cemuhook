@@ -99,44 +99,67 @@ class UDPServer:
         data.extend(struct.pack('<I', self.counter))
         self.counter += 1
 
+        buttons1 = 0x00
+        buttons1 |= report.button_share
+        buttons1 |= report.button_l3 << 1
+        buttons1 |= report.button_r3 << 2
+        buttons1 |= report.button_options << 3
+        buttons1 |= report.dpad_up << 4
+        buttons1 |= report.dpad_right << 5
+        buttons1 |= report.dpad_down << 6
+        buttons1 |= report.dpad_left << 7
+
+        buttons2 = 0x00
+        buttons2 |= report.button_l2
+        buttons2 |= report.button_r2 << 1
+        buttons2 |= report.button_l1 << 2
+        buttons2 |= report.button_r1 << 3
+        buttons2 |= report.button_triangle << 4
+        buttons2 |= report.button_circle << 5
+        buttons2 |= report.button_cross << 6
+        buttons2 |= report.button_square << 7
+
         data.extend([
-            0x00,  # left, down, right, up, options, R3, L3, share
-            0x00,  # square, cross, circle, triangle, r1, l1, r2, l2
-            0x00,  # PS
-            0x00,  # Touch
+            buttons1, buttons2,
+            0xFF if report.button_ps else 0x00,
+            0xFF if report.button_trackpad else 0x00,
 
-            0x00,  # position left x
-            0x00,  # position left y
-            0x00,  # position right x
-            0x00,  # position right y
+            report.left_analog_x,
+            255 - report.left_analog_y,
+            report.right_analog_x,
+            255 - report.right_analog_y,
 
-            0x00,  # dpad left
-            0x00,  # dpad down
-            0x00,  # dpad right
-            0x00,  # dpad up
+            0xFF if report.dpad_left else 0x00,
+            0xFF if report.dpad_down else 0x00,
+            0xFF if report.dpad_right else 0x00,
+            0xFF if report.dpad_up else 0x00,
 
-            0x00,  # square
-            0x00,  # cross
-            0x00,  # circle
-            0x00,  # triange
+            0xFF if report.button_square else 0x00,
+            0xFF if report.button_cross else 0x00,
+            0xFF if report.button_circle else 0x00,
+            0xFF if report.button_triangle else 0x00,
 
-            0x00,  # r1
-            0x00,  # l1
+            0xFF if report.button_r1 else 0x00,
+            0xFF if report.button_l1 else 0x00,
 
-            0x00,  # r2
-            0x00,  # l2
+            report.r2_analog,
+            report.l2_analog,
 
-            0x00,  # track pad first is active (false)
-            0x00,  # track pad first id
+            0xFF if report.trackpad_touch0_active else 0xFF,
+            report.trackpad_touch0_id,
 
-            0x00, 0x00,  # trackpad first x
-            0x00, 0x00,  # trackpad first y
+            report.trackpad_touch0_x >> 8,
+            report.trackpad_touch0_x & 255,
+            report.trackpad_touch0_y >> 8,
+            report.trackpad_touch0_y & 255,
 
-            0x00,  # track pad second is active (false)
-            0x00,  # track pad second id
+            0xFF if report.trackpad_touch1_active else 0xFF,
+            report.trackpad_touch1_id,
 
-            0x00, 0x00,  # trackpad second x
-            0x00, 0x00,  # trackpad second y
+            report.trackpad_touch1_x >> 8,
+            report.trackpad_touch1_x & 255,
+            report.trackpad_touch1_y >> 8,
+            report.trackpad_touch1_y & 255,
         ])
 
         data.extend(struct.pack('<d', time() * 10**6))

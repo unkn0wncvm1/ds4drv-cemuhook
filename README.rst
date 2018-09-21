@@ -24,7 +24,7 @@ Fork information
 
 - Added basic implementation of `cemuhook's <https://cemuhook.sshnuke.net/padudpserver.html>`_ UDP protocol.
 
-This allows to use gyroscope of DualShock 4 with `Cemu <http://cemu.info/>`_ over network or locally on any supported Linux distribution.
+This allows to use gyroscope, buttons and axes of DualShock 4 with `Cemu <http://cemu.info/>`_ over network or locally on any supported Linux distribution.
 
 Implementation is quite dirty, not configurable and have only been tested with The Legend of Zelda: Breath of the Wild.
 
