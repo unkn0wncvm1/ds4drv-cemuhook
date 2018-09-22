@@ -19,7 +19,8 @@ setup(name="ds4drv",
       packages=["ds4drv",
                 "ds4drv.actions",
                 "ds4drv.backends",
-                "ds4drv.packages"],
+                "ds4drv.packages",
+                "ds4drv.servers"],
       install_requires=["evdev>=0.3.0", "pyudev>=0.16"],
       classifiers=[
         "Development Status :: 4 - Beta",
@@ -31,4 +32,3 @@ setup(name="ds4drv",
         "Topic :: Games/Entertainment"
       ]
 )
-
