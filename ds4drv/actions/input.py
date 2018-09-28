@@ -93,7 +93,7 @@ class ReportActionInput(ReportAction):
             else:
                 joystick = None
 
-            if options.udp:
+            if options.udp and not self.server:
                 self.server = UDPServer(options.udp_host, options.udp_port)
                 self.server.start()
 
