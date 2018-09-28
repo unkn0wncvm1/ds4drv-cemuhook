@@ -38,6 +38,7 @@ class UDPServer:
         self.sock.bind((host, port))
         self.counter = 0
         self.client = None
+        self.remap = False
 
     def _res_ports(self, index):
         return Message('ports', [
@@ -114,10 +115,16 @@ class UDPServer:
         buttons2 |= report.button_r2 << 1
         buttons2 |= report.button_l1 << 2
         buttons2 |= report.button_r1 << 3
-        buttons2 |= report.button_triangle << 4
-        buttons2 |= report.button_circle << 5
-        buttons2 |= report.button_cross << 6
-        buttons2 |= report.button_square << 7
+        if not self.remap:
+            buttons2 |= report.button_triangle << 4
+            buttons2 |= report.button_circle << 5
+            buttons2 |= report.button_cross << 6
+            buttons2 |= report.button_square << 7
+        else:
+            buttons2 |= report.button_triangle << 7
+            buttons2 |= report.button_circle << 6
+            buttons2 |= report.button_cross << 5
+            buttons2 |= report.button_square << 4
 
         data.extend([
             buttons1, buttons2,

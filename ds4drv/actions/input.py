@@ -30,6 +30,8 @@ ReportAction.add_option("--udp-host", metavar="IP", default="127.0.0.1",
                         help="Interface that will accept UDP connections")
 ReportAction.add_option("--udp-port", metavar="PORT", type=int, default=26760,
                         help="Port that will be listened by the UDP server")
+ReportAction.add_option("--udp-remap-buttons", action="store_true",
+                        help="Swap A↔B and X↔Y in UDP reports")
 
 
 class ReportActionInput(ReportAction):
@@ -95,6 +97,7 @@ class ReportActionInput(ReportAction):
 
             if options.udp and not self.server:
                 self.server = UDPServer(options.udp_host, options.udp_port)
+                self.server.remap = options.udp_remap_buttons
                 self.server.start()
 
             self.joystick.ignored_buttons = set()
