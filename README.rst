@@ -28,6 +28,77 @@ This allows to use gyroscope, buttons and axes of DualShock 4 with `Cemu <http:/
 
 Implementation is quite dirty, not configurable and have only been tested with The Legend of Zelda: Breath of the Wild.
 
+How to install
+^^^^^^^^^^^^^^
+
+The ds4drv driver is written in Python, so it can be installed using
+pip.
+
+::
+
+   # Install pip on Debian/Ubuntu/etc.
+   sudo apt-get install python-pip
+
+   # Install (or update to) the latest version of ds4drv-cemuhook from GitHub
+   pip install -U https://github.com/TheDrHax/ds4drv-cemuhook/archive/master.zip
+
+How to use
+^^^^^^^^^^
+
+The driver supports all versions of Sony DualShock 4 controllers (I use
+DS4v2) connected via USB or Bluetooth.
+
+My version of ds4drv has 4 additional command line arguments (all are
+optional):
+
+-  ``--udp`` -- starts UDP server. Without this flag ds4drv acts just
+   like the official version;
+-  ``--udp-host`` -- tells UDP server to what interface it should bind
+   (default: 127.0.0.1);
+-  ``--udp-port`` -- UDP port on which server will be listening
+   (default: 26760);
+-  ``--udp-remap-buttons`` -- an option for those, who doesn’t like
+   Nintendo’s button layout. It just swaps A↔B and X↔Y buttons only for
+   UDP clients.
+
+Connecting controller and starting the driver
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The driver can be started by using this command:
+
+::
+
+   python -m ds4drv --hidraw --udp
+
+If you see a ``Permission denied`` error, you may need to copy `this`_
+file to ``/etc/udev/rules.d/`` and then execute this command:
+``sudo udevadm control --reload``. This udev rule allows to access the
+controller from user space without root privileges. After that reconnect
+your controller and try again.
+
+You should see something like this if controller has been connected
+successfully:
+
+::
+
+   [info][controller 1] Connected to Bluetooth Controller (AA:BB:CC:DD:FF:EE hidraw4)
+   [info][controller 1] Battery: Fully charged
+
+Configuring cemuhook
+^^^^^^^^^^^^^^^^^^^^
+
+This part is very easy. Cemuhook connects to localhost:26760 by default,
+so you just need to choose the first controller (DSU1) in ``Options`` -
+``GamePad motion source`` and then check the
+``Also use for buttons/axes`` option in the same menu. It is also a good
+idea to disable your controller in Cemu’s ``Input settings``.
+
+|image0|
+
+.. |image0| image:: https://i.redd.it/r9ilsyi5w1p11.png
+
+.. _this: https://github.com/TheDrHax/ds4drv-cemuhook/blob/master/udev/50-ds4drv.rules
+
 Installing
 ----------
 
