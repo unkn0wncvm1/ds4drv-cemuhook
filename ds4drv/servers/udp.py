@@ -1,4 +1,7 @@
+from builtins import bytes
+
 from threading import Thread
+import sys
 import socket
 import struct
 from binascii import crc32
@@ -17,7 +20,7 @@ class Message(list):
         ])
 
         # data length
-        self.extend((len(data) + 4).to_bytes(2, byteorder='little'))
+        self.extend(bytes(struct.pack('<H', len(data) + 4)))
 
         self.extend([
             0x00, 0x00, 0x00, 0x00,  # place for CRC32
@@ -29,7 +32,8 @@ class Message(list):
         self.extend(data)
 
         # CRC32
-        self[8:12] = crc32(bytes(self)).to_bytes(4, byteorder='little')
+        crc = crc32(bytes(self)) & 0xffffffff
+        self[8:12] = bytes(struct.pack('<I', crc))
 
 
 class UDPServer:
@@ -51,17 +55,23 @@ class UDPServer:
             0x00,  # ?
         ])
 
+    @staticmethod
+    def _compat_ord(value):
+        return ord(value) if sys.version_info < (3, 0) else value
+
     def _req_ports(self, message, address):
-        requests_count = int.from_bytes(message[20:24], byteorder='little')
+        requests_count = struct.unpack("<i", message[20:24])[0]
         for i in range(requests_count):
-            index = message[24 + i]
+            index = self._compat_ord(message[24 + i])
+
             if (index != 0):  # we have only one controller
                 continue
+
             self.sock.sendto(bytes(self._res_ports(index)), address)
 
     def _req_data(self, message, address):
-        flags = message[24]
-        reg_id = message[25]
+        flags = self._compat_ord(message[24])
+        reg_id = self._compat_ord(message[25])
         # reg_mac = message[26:32]
 
         if flags == 0 and reg_id == 0:  # TODO: Check MAC
@@ -97,7 +107,7 @@ class UDPServer:
             0x01  # is active (true)
         ]
 
-        data.extend(struct.pack('<I', self.counter))
+        data.extend(bytes(struct.pack('<I', self.counter)))
         self.counter += 1
 
         buttons1 = 0x00
@@ -169,7 +179,7 @@ class UDPServer:
             report.trackpad_touch1_y & 255,
         ])
 
-        data.extend(struct.pack('<d', time() * 10**6))
+        data.extend(bytes(struct.pack('<d', time() * 10**6)))
 
         sensors = [
             report.orientation_roll / 8192,
@@ -181,7 +191,7 @@ class UDPServer:
         ]
 
         for sensor in sensors:
-            data.extend(struct.pack('<f', float(sensor)))
+            data.extend(bytes(struct.pack('<f', float(sensor))))
 
         self.sock.sendto(bytes(Message('data', data)), self.client)
 
