@@ -37,10 +37,10 @@ pip.
 ::
 
    # Install pip on Debian/Ubuntu/etc.
-   sudo apt-get install python-pip
+   sudo apt-get install python3-pip
 
    # Install (or update to) the latest version of ds4drv-cemuhook from GitHub
-   pip install -U https://github.com/TheDrHax/ds4drv-cemuhook/archive/master.zip
+   pip3 install -U https://github.com/TheDrHax/ds4drv-cemuhook/archive/master.zip
 
 How to use
 ^^^^^^^^^^
@@ -68,7 +68,7 @@ The driver can be started by using this command:
 
 ::
 
-   python -m ds4drv --hidraw --udp
+   python3 -m ds4drv --hidraw --udp
 
 If you see a ``Permission denied`` error, you may need to copy `this`_
 file to ``/etc/udev/rules.d/`` and then execute this command:
