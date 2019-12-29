@@ -139,31 +139,31 @@ class UDPServer:
 
         data.extend([
             buttons1, buttons2,
-            0xFF if report.button_ps else 0x00,
-            0xFF if report.button_trackpad else 0x00,
+            report.button_ps * 0xFF,
+            report.button_trackpad * 0xFF,
 
             report.left_analog_x,
             255 - report.left_analog_y,
             report.right_analog_x,
             255 - report.right_analog_y,
 
-            0xFF if report.dpad_left else 0x00,
-            0xFF if report.dpad_down else 0x00,
-            0xFF if report.dpad_right else 0x00,
-            0xFF if report.dpad_up else 0x00,
+            report.dpad_left * 0xFF,
+            report.dpad_down * 0xFF,
+            report.dpad_right * 0xFF,
+            report.dpad_up * 0xFF,
 
-            0xFF if report.button_square else 0x00,
-            0xFF if report.button_cross else 0x00,
-            0xFF if report.button_circle else 0x00,
-            0xFF if report.button_triangle else 0x00,
+            report.button_square * 0xFF,
+            report.button_cross * 0xFF,
+            report.button_circle * 0xFF,
+            report.button_triangle * 0xFF,
 
-            0xFF if report.button_r1 else 0x00,
-            0xFF if report.button_l1 else 0x00,
+            report.button_r1 * 0xFF,
+            report.button_l1 * 0xFF,
 
             report.r2_analog,
             report.l2_analog,
 
-            0xFF if report.trackpad_touch0_active else 0xFF,
+            report.trackpad_touch0_active * 0xFF,
             report.trackpad_touch0_id,
 
             report.trackpad_touch0_x >> 8,
@@ -171,7 +171,7 @@ class UDPServer:
             report.trackpad_touch0_y >> 8,
             report.trackpad_touch0_y & 255,
 
-            0xFF if report.trackpad_touch1_active else 0xFF,
+            report.trackpad_touch1_active * 0xFF,
             report.trackpad_touch1_id,
 
             report.trackpad_touch1_x >> 8,
