@@ -42,7 +42,7 @@ class UDPServer:
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.sock.bind((host, port))
         self.counter = 0
-        self.client = None
+        self.clients = dict()
         self.remap = False
 
     def _res_ports(self, index):
@@ -76,8 +76,19 @@ class UDPServer:
         # reg_mac = message[26:32]
 
         if flags == 0 and reg_id == 0:  # TODO: Check MAC
-            self.client = address
-            self.last_request = time()
+            if address not in self.clients:
+                print('[udp] Client connected: {0[0]}:{0[1]}'.format(address))
+
+            self.clients[address] = time()
+
+    def _res_data(self, message):
+        now = time()
+        for address, timestamp in self.clients.copy().items():
+            if now - timestamp < 2:
+                self.sock.sendto(message, address)
+            else:
+                print('[udp] Client disconnected: {0[0]}:{0[1]}'.format(address))
+                del self.clients[address]
 
     def _handle_request(self, request):
         message, address = request
@@ -92,10 +103,10 @@ class UDPServer:
         elif msg_type == Message.Types['data']:
             self._req_data(message, address)
         else:
-            print('Unknown message type: ' + str(msg_type))
+            print('[udp] Unknown message type: ' + str(msg_type))
 
     def report(self, report):
-        if not self.client:
+        if len(self.clients) == 0:
             return None
 
         data = [
@@ -194,7 +205,7 @@ class UDPServer:
         for sensor in sensors:
             data.extend(bytes(struct.pack('<f', float(sensor))))
 
-        self.sock.sendto(bytes(Message('data', data)), self.client)
+        self._res_data(bytes(Message('data', data)))
 
     def _worker(self):
         while True:
