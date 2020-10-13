@@ -174,7 +174,7 @@ class UDPServer:
             report.r2_analog,
             report.l2_analog,
 
-            report.trackpad_touch0_active * 0xFF,
+            report.trackpad_touch0_active,
             report.trackpad_touch0_id,
 
             report.trackpad_touch0_x & 255,
@@ -182,7 +182,7 @@ class UDPServer:
             report.trackpad_touch0_y & 255,
             report.trackpad_touch0_y >> 8,
 
-            report.trackpad_touch1_active * 0xFF,
+            report.trackpad_touch1_active,
             report.trackpad_touch1_id,
 
             report.trackpad_touch1_x & 255,
