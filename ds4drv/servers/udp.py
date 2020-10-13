@@ -49,7 +49,7 @@ class UDPServer:
         return Message('ports', [
             index,  # pad id
             0x02,  # state (connected)
-            0x03,  # model (generic)
+            0x02,  # gyro (full gyro)
             0x01,  # connection type (usb)
             0x00, 0x00, 0x00, 0x00, 0x00, 0xff,  # MAC 00:00:00:00:00:FF
             0xef,  # battery (charged)
@@ -112,7 +112,7 @@ class UDPServer:
         data = [
             0x00,  # pad id
             0x02,  # state (connected)
-            0x02,  # model (generic)
+            0x02,  # gyro (full gyro)
             0x01,  # connection type (usb)
             0x00, 0x00, 0x00, 0x00, 0x00, 0xff,  # MAC 00:00:00:00:00:FF
             0xef,  # battery (charged)
