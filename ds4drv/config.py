@@ -66,6 +66,18 @@ daemonopt.add_argument("--daemon-log", default=DAEMON_LOG_FILE, metavar="file",
 daemonopt.add_argument("--daemon-pid", default=DAEMON_PID_FILE, metavar="file",
                        help="PID file to create in daemon mode")
 
+udpopt = parser.add_argument_group("UDP server options")
+udpopt.add_argument("--udp", action="store_true",
+                    help="Listen for connections from Cemuhook via UDP")
+udpopt.add_argument("--udp-host", metavar="IP", default="127.0.0.1",
+                    help="Interface that will accept UDP connections")
+udpopt.add_argument("--udp-no-touch", action="store_true",
+                    help="Do not send touchpad touches to UDP clients")
+udpopt.add_argument("--udp-port", metavar="PORT", type=int, default=26760,
+                    help="Port that will be listened by the UDP server")
+udpopt.add_argument("--udp-remap-buttons", action="store_true",
+                    help="Swap A-B and X-Y in UDP reports")
+
 controllopt = parser.add_argument_group("controller options")
 
 

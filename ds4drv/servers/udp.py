@@ -45,15 +45,44 @@ class UDPServer:
         self.clients = dict()
         self.remap = False
         self.send_touch = True
+        self.controllers = {}
+
+    def register_controller(self, controller):
+        index = controller.index - 1
+        self.controllers[index] = controller
+        controller.loop.register_event(
+            "device-report",
+            lambda report: self.report(index, controller, report))
+
+    def _slot_info(self, index):
+        mac = [0x00, 0x00, 0x00, 0x00, 0x00, 0xff] # 00:00:00:00:00:FF
+        conn_type = 0
+        state = 0
+
+        controller = None
+
+        if index in self.controllers:
+            controller = self.controllers[index]
+
+        if controller and controller.device:
+            mac = [int('0x' + i, 16)
+                   for i in controller.device.device_addr.split(':')]
+
+            state = 2
+            conn_type = 2 if controller.device.type == 'bluetooth' else 1
+
+        return [
+            index,  # pad id
+            state,
+            0x02,  # gyro (full gyro)
+            conn_type,  # connection type,
+            *mac,  # MAC,
+            0xef,  # battery (charged) TODO
+        ]
 
     def _res_ports(self, index):
         return Message('ports', [
-            index,  # pad id
-            0x02,  # state (connected)
-            0x02,  # gyro (full gyro)
-            0x01,  # connection type (usb)
-            0x00, 0x00, 0x00, 0x00, 0x00, 0xff,  # MAC 00:00:00:00:00:FF
-            0xef,  # battery (charged)
+            *self._slot_info(index),
             0x00,  # ?
         ])
 
@@ -63,10 +92,11 @@ class UDPServer:
 
     def _req_ports(self, message, address):
         requests_count = struct.unpack("<i", message[20:24])[0]
+
         for i in range(requests_count):
             index = self._compat_ord(message[24 + i])
 
-            if (index != 0):  # we have only one controller
+            if (index > len(self.controllers) - 1):
                 continue
 
             self.sock.sendto(bytes(self._res_ports(index)), address)
@@ -106,17 +136,16 @@ class UDPServer:
         else:
             print('[udp] Unknown message type: ' + str(msg_type))
 
-    def report(self, report):
+    def report(self, index, controller, report):
         if len(self.clients) == 0:
             return None
 
+        # Ignore outdated callbacks
+        if index not in self.controllers or self.controllers[index] != controller:
+            return None
+
         data = [
-            0x00,  # pad id
-            0x02,  # state (connected)
-            0x02,  # gyro (full gyro)
-            0x01,  # connection type (usb)
-            0x00, 0x00, 0x00, 0x00, 0x00, 0xff,  # MAC 00:00:00:00:00:FF
-            0xef,  # battery (charged)
+            *self._slot_info(index),
             0x01  # is active (true)
         ]
 

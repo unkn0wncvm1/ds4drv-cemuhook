@@ -5,6 +5,7 @@ from threading import Thread
 
 from .actions import ActionRegistry
 from .backends import BluetoothBackend, HidrawBackend
+from .servers import UDPServer
 from .config import load_options
 from .daemon import Daemon
 from .eventloop import EventLoop
@@ -173,9 +174,20 @@ def main():
     if options.daemon:
         Daemon.fork(options.daemon_log, options.daemon_pid)
 
+    udpserver = None
+
+    if options.udp:
+        udpserver = UDPServer(options.udp_host, options.udp_port)
+        udpserver.remap = options.udp_remap_buttons
+        udpserver.send_touch = not options.udp_no_touch
+        udpserver.start()
+
     for index, controller_options in enumerate(options.controllers):
         thread = create_controller_thread(index + 1, controller_options)
         threads.append(thread)
+
+        if options.udp:
+            udpserver.register_controller(thread.controller)
 
     for device in backend.devices:
         connected_devices = []
