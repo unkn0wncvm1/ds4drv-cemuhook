@@ -81,7 +81,7 @@ udpopt.add_argument("--udp-remap-buttons", action="store_true",
 controllopt = parser.add_argument_group("controller options")
 
 
-class Config(configparser.SafeConfigParser):
+class Config(configparser.ConfigParser):
     def load(self, filename):
         self.read([filename])
 
