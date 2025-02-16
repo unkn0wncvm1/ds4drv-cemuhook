@@ -108,7 +108,7 @@ class Config(configparser.ConfigParser):
             return {}
 
     def sections(self, prefix=None):
-        for section in configparser.SafeConfigParser.sections(self):
+        for section in configparser.ConfigParser.sections(self):
             match = re.match(r"{0}:(.+)".format(prefix), section)
             if match:
                 yield match.group(1), section
